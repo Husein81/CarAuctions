@@ -1,45 +1,61 @@
-﻿namespace AuctionService.Dtos
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace AuctionService.Dtos
 {
-    public record AuctionDto(
-        Guid Id,
-        int ReservePrice,
-        string Seller,
-        string? Winner,
-        int? SoldAmount,
-        int CurrentHighBid,
-        DateTime CreatedAt,
-        DateTime UpdatedAt,
-        DateTime AuctionEnd,
-        string Status,
-        ItemDto Item
-    );
+    public class AuctionDto
+    {
+        public Guid Id { get; set; }
+        public int ReservePrice { get; set; }
+        public string Seller { get; set; }
+        public string Winner { get; set; }
+        public int SoldAmount { get; set; }
+        public int CurrentHighBid { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public DateTime UpdatedAt { get; set; }
+        public DateTime AuctionEnd { get; set; }
+        public string Status { get; set; }
+        public string Make { get; set; }
+        public string Model { get; set; }
+        public int Year { get; set; }
+        public string Color { get; set; }
+        public int Mileage { get; set; }
+        public string ImageUrl { get; set; }
+    }
 
-    public record CreateAuctionDto(
-        int ReservePrice,
-        DateTime AuctionEnd,
-        string Make,
-        string Model,
-        int Year,
-        string Color,
-        int Mileage,
-        string ImageUrl
-    );
+    public class CreateAuctionDto
+    {
+        [Required]
+        public string Make { get; set; }
 
-    public record UpdateAuctionDto(
-        string? Make,
-        string? Model,
-        int? Year,
-        string? Color,
-        int? Mileage,
-        string? ImageUrl
-    );
+        [Required]
+        public string Model { get; set; }
 
-    public record ItemDto(
-        string Make,
-        string Model,
-        int Year,
-        string Color,
-        int Mileage,
-        string ImageUrl
-    );
+        [Required]
+        public int Year { get; set; }
+
+        [Required]
+        public string Color { get; set; }
+
+        [Required]
+        public int Mileage { get; set; }
+
+        [Required]
+        public string ImageUrl { get; set; }
+
+        [Required]
+        public int ReservePrice { get; set; }
+
+        [Required]
+        public DateTime AuctionEnd { get; set; }
+    }
+
+    public class UpdateAuctionDto
+    {
+        public string Make { get; set; }
+        public string Model { get; set; }
+        public int? Year { get; set; }
+        public string Color { get; set; }
+        public int? Mileage { get; set; }
+        public string ImageUrl { get; set; }
+    }
 }

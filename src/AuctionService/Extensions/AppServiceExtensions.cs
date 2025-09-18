@@ -1,18 +1,42 @@
-﻿using AuctionService.Data;
+﻿using AuctionService.Consumers;
+using AuctionService.Data;
 using AuctionService.Profiles;
+using MassTransit;
 using Microsoft.EntityFrameworkCore;
 
 namespace AuctionService.Extensions
 {
     public static class AppServiceExtensions
     {
-        public static void AddAppServices(this IServiceCollection services, IConfiguration configuration)
+        public static IServiceCollection AddAppServices(this IServiceCollection services, IConfiguration configuration)
         {
+            services.AddOpenApi();
             services.AddControllers();
             services.AddDbContext<AppDbContext>(options =>
                 options.UseNpgsql(configuration.GetConnectionString("DefaultConnection")));
 
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+            services.AddMassTransit(x =>
+            {
+                x.AddEntityFrameworkOutbox<AppDbContext>(o =>
+                    {
+                        o.QueryDelay = TimeSpan.FromSeconds(10);
+
+                        o.UsePostgres();
+                        o.UseBusOutbox();
+                    });
+
+                x.AddConsumersFromNamespaceContaining<AuctionCreatedFaultConsumer>();
+
+                x.SetEndpointNameFormatter(new KebabCaseEndpointNameFormatter("auction", false));
+                
+                x.UsingRabbitMq((context, cfg) =>
+                {
+                    cfg.Host(configuration.GetConnectionString("RabbitMq") ?? "amqp://guest:guest@localhost:5672");
+                    cfg.ConfigureEndpoints(context);
+                });
+            });
+            return services;
         }
     }
 }
