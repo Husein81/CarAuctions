@@ -2,6 +2,7 @@
 using AuctionService.Data;
 using AuctionService.Profiles;
 using MassTransit;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 
 namespace AuctionService.Extensions
@@ -36,6 +37,16 @@ namespace AuctionService.Extensions
                     cfg.ConfigureEndpoints(context);
                 });
             });
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(opt =>
+                {
+                    opt.Authority = configuration["IdentityServerURL"];
+                    opt.Audience = "auction";
+                    opt.RequireHttpsMetadata = false;
+                    opt.TokenValidationParameters.ValidateAudience = false;
+                    opt.TokenValidationParameters.NameClaimType = "username";
+                });
+
             return services;
         }
     }
