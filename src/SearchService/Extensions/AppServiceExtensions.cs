@@ -43,8 +43,12 @@ namespace SearchService.Extensions
 
                 x.UsingRabbitMq((context, cfg) =>
                 {
-                    cfg.Host(configuration.GetConnectionString("RabbitMq") ?? "amqp://guest:guest@localhost:5672");
-                    
+                    cfg.Host(configuration["RabbitMq:Host"], "/", h =>
+                    {
+                        h.Username(configuration.GetValue("RabbitMq:Username", "guest"));
+                        h.Password(configuration.GetValue("RabbitMq:Password", "guest"));
+                    });
+
                     cfg.ReceiveEndpoint("search-auction-created", e =>
                     {
                         e.UseMessageRetry(r => r.Interval(5, 5));

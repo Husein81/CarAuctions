@@ -20,12 +20,11 @@ namespace AuctionService.Extensions
             services.AddMassTransit(x =>
             {
                 x.AddEntityFrameworkOutbox<AppDbContext>(o =>
-                    {
-                        o.QueryDelay = TimeSpan.FromSeconds(10);
-
-                        o.UsePostgres();
-                        o.UseBusOutbox();
-                    });
+                {
+                    o.QueryDelay = TimeSpan.FromSeconds(10);
+                    o.UsePostgres();
+                    o.UseBusOutbox();
+                });
 
                 x.AddConsumersFromNamespaceContaining<AuctionCreatedFaultConsumer>();
 
@@ -33,10 +32,15 @@ namespace AuctionService.Extensions
                 
                 x.UsingRabbitMq((context, cfg) =>
                 {
-                    cfg.Host(configuration.GetConnectionString("RabbitMq") ?? "amqp://guest:guest@localhost:5672");
+                    cfg.Host(configuration["RabbitMq:Host"],"/", h =>
+                    {
+                        h.Username(configuration.GetValue("RabbitMq:Username", "guest"));
+                        h.Password(configuration.GetValue("RabbitMq:Password", "guest"));
+                    });
                     cfg.ConfigureEndpoints(context);
                 });
             });
+            
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(opt =>
                 {
