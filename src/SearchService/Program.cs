@@ -15,6 +15,9 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
+// Use CORS - IMPORTANT: Must be before other middleware
+app.UseCors("AllowAll");
+
 app.UseHttpsRedirection();
 
 app.UseAuthorization();

@@ -13,6 +13,18 @@ namespace AuctionService.Extensions
         {
             services.AddOpenApi();
             services.AddControllers();
+
+            // Add CORS
+            services.AddCors(options =>
+            {
+                options.AddPolicy("AllowAll", policy =>
+                {
+                    policy.AllowAnyOrigin()
+                          .AllowAnyMethod()
+                          .AllowAnyHeader();
+                });
+            });
+
             services.AddDbContext<AppDbContext>(options =>
                 options.UseNpgsql(configuration.GetConnectionString("DefaultConnection")));
 

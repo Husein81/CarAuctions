@@ -4,7 +4,6 @@ using AuctionService.Extensions;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-
 builder.Services.AddAppServices(builder.Configuration);
 
 var app = builder.Build();
@@ -14,6 +13,9 @@ if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
 }
+
+// Use CORS - IMPORTANT: Must be before other middleware
+app.UseCors("AllowAll");
 
 app.UseHttpsRedirection();
 

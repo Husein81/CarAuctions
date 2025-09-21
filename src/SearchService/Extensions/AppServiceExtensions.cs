@@ -16,6 +16,18 @@ namespace SearchService.Extensions
             services.AddControllers();
             // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
             services.AddOpenApi();
+
+            // Add CORS
+            services.AddCors(options =>
+            {
+                options.AddPolicy("AllowAll", policy =>
+                {
+                    policy.AllowAnyOrigin()
+                          .AllowAnyMethod()
+                          .AllowAnyHeader();
+                });
+            });
+
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
             
             // Add MongoDB services

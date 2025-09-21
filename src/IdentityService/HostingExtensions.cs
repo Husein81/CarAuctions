@@ -51,6 +51,17 @@ internal static class HostingExtensions
     {
         builder.Services.AddRazorPages();
 
+        // Add CORS
+        builder.Services.AddCors(options =>
+        {
+            options.AddPolicy("AllowAll", policy =>
+            {
+                policy.AllowAnyOrigin()
+                      .AllowAnyMethod()
+                      .AllowAnyHeader();
+            });
+        });
+
         builder.Services.AddDbContext<ApplicationDbContext>(options =>
             options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
@@ -120,6 +131,9 @@ internal static class HostingExtensions
         {
             app.UseDeveloperExceptionPage();
         }
+
+        // Use CORS before other middleware
+        app.UseCors("AllowAll");
 
         app.UseStaticFiles();
         app.UseRouting();
