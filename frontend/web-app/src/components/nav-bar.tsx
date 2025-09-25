@@ -1,7 +1,11 @@
+import { getCurrentUser } from "@/app/actions/authAuctions";
+import LoginButton from "./login-button";
 import Logo from "./logo";
 import Search from "./search";
+import UserActions from "./user-actions";
 
-const NavBar = () => {
+export default async function NavBar() {
+  const user = await getCurrentUser();
   return (
     <header className="flex justify-between items-center sticky top-0 z-50 bg-white py-4 px-6 shadow-md">
       {/* left side */}
@@ -11,9 +15,7 @@ const NavBar = () => {
       <Search />
 
       {/* right side */}
-      <div className="flex items-center gap-4">Login</div>
+      {user ? <UserActions user={user} /> : <LoginButton />}
     </header>
   );
-};
-
-export default NavBar;
+}

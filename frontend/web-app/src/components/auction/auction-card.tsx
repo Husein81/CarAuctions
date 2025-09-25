@@ -2,6 +2,7 @@ import { Auction } from "@/types";
 import CarImage from "./car-image";
 import CountdownTimer from "./countdown-timer";
 import CurrentBid from "./current-bid";
+import Link from "next/link";
 
 type Props = {
   auction: Auction;
@@ -9,7 +10,7 @@ type Props = {
 
 export default function AuctionCard({ auction }: Props) {
   return (
-    <div className="group">
+    <Link href={`/auctions/details/${auction.id}`} className="group">
       <div className="w-full bg-gray-200 h-48 rounded-lg overflow-hidden">
         <div className="relative w-full h-full">
           <CarImage imageUrl={auction.imageUrl} />
@@ -30,6 +31,6 @@ export default function AuctionCard({ auction }: Props) {
         </h3>
         <p className="font-semibold text-sm">{auction.year}</p>
       </div>
-    </div>
+    </Link>
   );
 }

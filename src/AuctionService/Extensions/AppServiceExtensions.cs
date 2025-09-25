@@ -1,6 +1,5 @@
 ﻿using AuctionService.Consumers;
 using AuctionService.Data;
-using AuctionService.Profiles;
 using MassTransit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -11,9 +10,6 @@ namespace AuctionService.Extensions
     {
         public static IServiceCollection AddAppServices(this IServiceCollection services, IConfiguration configuration)
         {
-            services.AddOpenApi();
-            services.AddControllers();
-
             // Add CORS
             services.AddCors(options =>
             {
@@ -41,10 +37,10 @@ namespace AuctionService.Extensions
                 x.AddConsumersFromNamespaceContaining<AuctionCreatedFaultConsumer>();
 
                 x.SetEndpointNameFormatter(new KebabCaseEndpointNameFormatter("auction", false));
-                
+
                 x.UsingRabbitMq((context, cfg) =>
                 {
-                    cfg.Host(configuration["RabbitMq:Host"],"/", h =>
+                    cfg.Host(configuration["RabbitMq:Host"], "/", h =>
                     {
                         h.Username(configuration.GetValue("RabbitMq:Username", "guest"));
                         h.Password(configuration.GetValue("RabbitMq:Password", "guest"));
@@ -52,12 +48,11 @@ namespace AuctionService.Extensions
                     cfg.ConfigureEndpoints(context);
                 });
             });
-            
+
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(opt =>
                 {
-                    opt.Authority = configuration["IdentityServerURL"];
-                    opt.Audience = "auction";
+                    opt.Authority = configuration["IdentityServiceUrl"];
                     opt.RequireHttpsMetadata = false;
                     opt.TokenValidationParameters.ValidateAudience = false;
                     opt.TokenValidationParameters.NameClaimType = "username";

@@ -1,46 +1,24 @@
+"use client";
 import { useParamsStore } from "@/hooks";
+import { cn } from "@/lib/utils";
 import Icon from "./icon";
 import { Button, Shad } from "./ui";
-import { cn } from "@/lib/utils";
-import { useRouter, useSearchParams } from "next/navigation";
-import { useCallback } from "react";
 
 type Props = {
+  currentPage: number;
   totalPages: number;
 };
 
-const Pagination = ({ totalPages }: Props) => {
-  const router = useRouter();
-  const searchParams = useSearchParams();
+const Pagination = ({ currentPage, totalPages }: Props) => {
   const { setParams } = useParamsStore();
 
-  // Get current page from URL or default to 1
-  const currentPage = parseInt(searchParams.get("pageNumber") || "1", 10);
-
-  // Function to update URL with new page
-  const handlePageChange = useCallback(
-    (newPage: number) => {
-      const params = new URLSearchParams(searchParams);
-
-      if (newPage === 1) {
-        params.delete("pageNumber");
-      } else {
-        params.set("pageNumber", newPage.toString());
-      }
-
-      setParams({ pageNumber: newPage });
-
-      const queryString = params.toString();
-      const newUrl = queryString ? `?${queryString}` : window.location.pathname;
-
-      router.push(newUrl, { scroll: false });
-    },
-    [router, searchParams]
-  );
+  const handlePageChange = (newPage: number) => {
+    setParams({ pageNumber: newPage });
+  };
 
   // Helper function to generate page numbers array
   const getPageNumbers = () => {
-    const delta = 2; // Number of pages to show on each side of current page
+    const delta = 2;
     const range = [];
     const rangeWithDots = [];
 

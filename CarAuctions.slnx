@@ -3,6 +3,7 @@
     <File Path="docker-compose.yml" />
   </Folder>
   <Project Path="src/AuctionService/AuctionService.csproj" />
+  <Project Path="src/BiddingService/BiddingService.csproj" Id="c10692cc-05a6-4581-b4bf-8adbae5636ac" />
   <Project Path="src/Contracts/Contracts.csproj" />
   <Project Path="src/GatewayService/GatewayService.csproj" Id="d700a6af-66e1-4c30-9190-1eb8c2c50d1e" />
   <Project Path="src/IdentityService/IdentityService.csproj" />

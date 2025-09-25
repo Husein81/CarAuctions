@@ -1,6 +1,6 @@
-import { auctionSchema, PagedResult } from "@/types";
-import { useQuery } from "@tanstack/react-query";
-import axios from "axios";
+import { auctionsApi } from "@/lib/api";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "react-toastify";
 
 export const useGetAuctions = (params: {
   pageNumber?: number;
@@ -13,10 +13,53 @@ export const useGetAuctions = (params: {
 }) =>
   useQuery({
     queryKey: ["auctions", params],
-    queryFn: async (): Promise<PagedResult<typeof auctionSchema>> => {
-      const response = await axios.get("http://localhost:5002/api/search", {
-        params,
-      });
-      return response.data;
+    queryFn: () => auctionsApi.getAuctions(params),
+  });
+
+export const useGetAuction = (id: string) =>
+  useQuery({
+    queryKey: ["auction", id],
+    queryFn: () => auctionsApi.getAuction(id),
+  });
+
+export const useCreateAuction = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: auctionsApi.createAuction,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["auctions"] });
+      toast.success("Auction created successfully");
+    },
+    onError: (error) => {
+      toast.error(error instanceof Error ? error.message : "An error occurred");
     },
   });
+};
+
+export const useUpdateAuction = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, auction }: { id: string; auction: any }) =>
+      auctionsApi.updateAuction(id, auction),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["auctions"] });
+    },
+    onError: (error) => {
+      toast.error(error instanceof Error ? error.message : "An error occurred");
+    },
+  });
+};
+
+export const useDeleteAuction = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => auctionsApi.deleteAuction(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["auctions"] });
+      toast.success("Auction deleted successfully");
+    },
+    onError: (error) => {
+      toast.error(error instanceof Error ? error.message : "An error occurred");
+    },
+  });
+};

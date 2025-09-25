@@ -9,13 +9,6 @@ namespace SearchService.Controllers
     [Route("api/search")]
     public class SearchController : ControllerBase
     {
-        private readonly IMongoCollection<Item> _itemsCollection;
-        
-        public SearchController(IMongoDatabase database)
-        {
-            _itemsCollection = database.GetCollection<Item>("items");
-        }
-
         [HttpGet]
         public async Task<ActionResult<List<Item>>> SearchItems([FromQuery] SearchParams searchParams)
         {

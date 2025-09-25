@@ -73,8 +73,8 @@ const filterOptions = [
 const Filters = () => {
   const { pageSize, orderBy, filterBy, setParams } = useParamsStore();
   return (
-    <div className="flex justify-between items-center mb-4">
-      <div className="flex items-center gap-2">
+    <div className="flex flex-col md:flex-row justify-between items-center mb-4">
+      <div className="flex flex-col md:flex-row gap-4 items-center md:gap-2">
         <span className="uppercase text-sm mr-2 font-semibold text-gray-400">
           filter by
         </span>
@@ -85,7 +85,7 @@ const Filters = () => {
           onChange={(opt) => setParams({ filterBy: opt })}
         />
       </div>
-      <div className="flex items-center gap-2">
+      <div className="flex flex-col md:flex-row gap-4 items-center md:gap-2">
         <span className="uppercase text-sm mr-2 font-semibold text-gray-400">
           order by
         </span>
@@ -96,7 +96,7 @@ const Filters = () => {
           onChange={(opt) => setParams({ orderBy: opt })}
         />
       </div>
-      <div className="flex items-center gap-2">
+      <div className="flex flex-col md:flex-row gap-4 items-center md:gap-2">
         <span className="uppercase text-sm mr-2 font-semibold text-gray-400">
           page size
         </span>

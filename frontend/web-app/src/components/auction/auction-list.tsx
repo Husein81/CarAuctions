@@ -9,14 +9,23 @@ import Filters from "./filters";
 import EmptyFilter from "../empty-filter";
 
 const AuctionList = () => {
-  const { pageNumber, pageSize, orderBy, searchTerm, setParams } =
-    useParamsStore();
+  const {
+    pageNumber,
+    pageSize,
+    orderBy,
+    seller,
+    winner,
+    searchTerm,
+    setParams,
+  } = useParamsStore();
 
   const { data: pagedAuctions, isLoading } = useGetAuctions({
     pageNumber,
     pageSize,
     orderBy,
     searchTerm,
+    seller,
+    winner,
   });
 
   const auctions = pagedAuctions?.results;
@@ -27,7 +36,7 @@ const AuctionList = () => {
         <Filters />
         {isLoading ? (
           <SkeletonList />
-        ) : pagedAuctions?.totalCount !== 0 ? (
+        ) : pagedAuctions?.totalCount === 0 ? (
           <EmptyFilter showReset />
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -40,6 +49,7 @@ const AuctionList = () => {
       </div>
 
       <Pagination
+        currentPage={pageNumber}
         totalPages={Math.ceil((pagedAuctions?.totalCount || 0) / pageSize)}
       />
     </div>

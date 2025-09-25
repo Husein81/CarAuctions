@@ -1,10 +1,9 @@
 "use client";
 
 import { useParamsStore } from "@/hooks";
-import React from "react";
+import { signIn } from "next-auth/react";
 import Heading from "./heading";
 import { Button } from "./ui";
-import Icon from "./icon";
 
 type Props = {
   title?: string;
@@ -19,6 +18,7 @@ export default function EmptyFilter({
   subtitle = "Try changing or resetting the filter",
   showReset,
   showLogin,
+  callbackUrl,
 }: Props) {
   const reset = useParamsStore((state) => state.reset);
 
@@ -27,7 +27,11 @@ export default function EmptyFilter({
       <Heading title={title} subtitle={subtitle} center />
       <div className="mt-4 flex items-center gap-4 flex-col">
         {showReset && <Button onClick={reset}>Remove Filters</Button>}
-        {showLogin && <Button>Login</Button>}
+        {showLogin && (
+          <Button onClick={() => signIn("id-server", { callbackUrl })}>
+            Login
+          </Button>
+        )}
       </div>
     </div>
   );

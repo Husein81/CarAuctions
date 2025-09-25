@@ -83,7 +83,7 @@ namespace AuctionService.Controllers
 
             if (auction == null) return NotFound();
 
-            if(auction.Seller != User.Identity.Name)
+            if (auction.Seller != User.Identity.Name)
                 return Forbid();
 
             auction.Item.Make = updateAuctionDto.Make ?? auction.Item.Make;
@@ -109,7 +109,7 @@ namespace AuctionService.Controllers
 
             if (auction == null) return NotFound();
 
-           if(auction.Seller != User.Identity.Name)
+            if (auction.Seller != User.Identity.Name)
                 return Forbid();
 
             _context.Auctions.Remove(auction);

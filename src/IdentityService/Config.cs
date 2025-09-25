@@ -14,19 +14,8 @@ public static class Config
     public static IEnumerable<ApiScope> ApiScopes =>
         new ApiScope[]
         {
-            new ApiScope("auctionApp", "Auction app full access"),
-            new ApiScope("auction", "Auction API access"),
+            new ApiScope("auctionApp", "Auction app full access")
         };
-
-    public static IEnumerable<ApiResource> ApiResources =>
-        new ApiResource[]
-        {
-            new ApiResource("auctionApp", "Auction App")
-            {
-                Scopes = { "auctionApp" }
-            }
-        };
-
     public static IEnumerable<Client> Clients =>
         new Client[]
         {
@@ -51,8 +40,10 @@ public static class Config
                 RequirePkce = false,
                 RedirectUris = { "http://localhost:3000/api/auth/callback/id-server" },
                 AllowOfflineAccess = true,
+                // include 'auction' so this client can request access tokens for the Auction API
                 AllowedScopes = { "openid", "profile", "auctionApp" },
                 AccessTokenLifetime = 3600*24*30,
+                AlwaysIncludeUserClaimsInIdToken = true
             }
         };
 }

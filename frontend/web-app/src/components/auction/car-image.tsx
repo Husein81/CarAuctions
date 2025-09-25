@@ -10,6 +10,15 @@ type Props = {
 
 export default function CarImage({ imageUrl }: Props) {
   const [isLoading, setLoading] = useState(true);
+
+  if (!imageUrl || imageUrl.trim() === "") {
+    return (
+      <div className="w-full h-full bg-gray-300 flex items-center justify-center rounded-lg">
+        <span className="text-gray-500">No image</span>
+      </div>
+    );
+  }
+
   return (
     <Image
       src={imageUrl}
