@@ -118,6 +118,8 @@ namespace AuctionService.Controllers
 
             if (!result) return BadRequest("Could not update DB");
 
+            await _publishEndpoint.Publish(new AuctionDeleted { Id = id.ToString() });
+
             return Ok();
         }
     }

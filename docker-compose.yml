@@ -49,7 +49,7 @@ services:
     image: trycatchlearn/auction-svc:latest
     build:
         context: .
-        dockerfile: src/AuctionService/Dockerfile
+        dockerfile: services/AuctionService/Dockerfile
     environment:
         - ASPNETCORE_ENVIRONMENT=Development
         - ASPNETCORE_URLS=http://+:80
@@ -67,7 +67,7 @@ services:
     image: trycatchlearn/search-svc:latest
     build:
         context: .
-        dockerfile: src/SearchService/Dockerfile
+        dockerfile: services/SearchService/Dockerfile
     environment:
         - ASPNETCORE_ENVIRONMENT=Development
         - ASPNETCORE_URLS=http://+:80
@@ -85,7 +85,7 @@ services:
     image: trycatchlearn/identity-svc:latest
     build:
         context: .
-        dockerfile: src/IdentityService/Dockerfile
+        dockerfile: services/IdentityService/Dockerfile
     environment:
         - ASPNETCORE_ENVIRONMENT=Docker
         - ASPNETCORE_URLS=http://+:80
@@ -99,7 +99,7 @@ services:
       image: trycatchlearn/search-svc:latest
       build:
           context: .
-          dockerfile: src/SearchService/Dockerfile
+          dockerfile: services/SearchService/Dockerfile
       environment:
           - ASPNETCORE_ENVIRONMENT=Development
           - ASPNETCORE_URLS=http://+:80
@@ -117,7 +117,7 @@ services:
       image: trycatchlearn/bid-svc:latest
       build:
           context: .
-          dockerfile: src/BidService/Dockerfile
+          dockerfile: services/BiddingService/Dockerfile
       environment:
           - ASPNETCORE_ENVIRONMENT=Development
           - ASPNETCORE_URLS=http://+:80
