@@ -11,10 +11,12 @@ export const updateAuctionTest = async (): Promise<{
 
   const session = useSession();
 
+  const token = session.data?.access_token;
+
   const res = await axios.get("http://localhost:5001/auctions/", {
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${session.data?.accessToken}`,
+      Authorization: `Bearer ${token}`,
     },
   });
 

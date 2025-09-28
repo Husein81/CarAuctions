@@ -1,4 +1,5 @@
-import { auctionsApi } from "@/lib/api";
+import { auctionsApi, bidsApi } from "@/lib";
+import { Auction } from "@/types";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 
@@ -22,6 +23,13 @@ export const useGetAuction = (id: string) =>
     queryFn: () => auctionsApi.getAuction(id),
   });
 
+export const useGetBidsForAuction = (auctionId: string) =>
+  useQuery({
+    queryKey: ["bids", auctionId],
+    queryFn: () => bidsApi.getBidsForAuction(auctionId),
+    enabled: !!auctionId,
+  });
+
 export const useCreateAuction = () => {
   const queryClient = useQueryClient();
   return useMutation({
@@ -36,13 +44,34 @@ export const useCreateAuction = () => {
   });
 };
 
+export const usePlaceBidForAuction = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      auctionId,
+      amount,
+    }: {
+      auctionId: string;
+      amount: number;
+    }) => bidsApi.placeBidForAuction(auctionId, amount),
+    onSuccess: (_, { auctionId }) => {
+      queryClient.invalidateQueries({ queryKey: ["bids", auctionId] });
+      toast.success("Bid placed successfully");
+    },
+    onError: (error) => {
+      toast.error(error instanceof Error ? error.message : "An error occurred");
+    },
+  });
+};
+
 export const useUpdateAuction = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, auction }: { id: string; auction: any }) =>
+    mutationFn: ({ id, auction }: { id: string; auction: Partial<Auction> }) =>
       auctionsApi.updateAuction(id, auction),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["auctions"] });
+      toast.success("Auction updated successfully");
     },
     onError: (error) => {
       toast.error(error instanceof Error ? error.message : "An error occurred");

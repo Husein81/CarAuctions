@@ -6,7 +6,7 @@ declare module "next-auth" {
     user: {
       username: string;
     };
-    accessToken: string;
+    access_token: string;
   }
 
   interface Profile {

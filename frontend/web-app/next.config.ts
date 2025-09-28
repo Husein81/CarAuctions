@@ -10,6 +10,11 @@ const nextConfig: NextConfig = {
         pathname: "/**",
       },
       {
+        protocol: "http",
+        hostname: "localhost",
+        port: "3000", // if you really need localhost images
+      },
+      {
         protocol: "https",
         hostname: "example.com",
         port: "",

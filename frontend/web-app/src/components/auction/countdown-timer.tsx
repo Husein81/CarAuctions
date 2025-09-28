@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import Countdown, { zeroPad } from "react-countdown";
 
 type Props = {
-  auctionEnd: string;
+  auctionEnd: Date;
 };
 
 const renderer = ({

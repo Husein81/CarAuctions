@@ -1,4 +1,5 @@
 ﻿using BiddingService.Consumers;
+using BiddingService.Services;
 using MassTransit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 
@@ -8,6 +9,16 @@ namespace BiddingService.Extensions
     {
         public static IServiceCollection AddAppServices(this IServiceCollection services, IConfiguration configuration)
         {
+            services.AddCors(options =>
+            {
+                options.AddPolicy("AllowAll", policy =>
+                {
+                    policy.AllowAnyOrigin()
+                          .AllowAnyMethod()
+                          .AllowAnyHeader();
+                });
+            });
+
             services.AddMassTransit(x =>
             {
                 x.AddConsumersFromNamespaceContaining<AuctionCreateConsumer>();
@@ -16,6 +27,12 @@ namespace BiddingService.Extensions
 
                 x.UsingRabbitMq((context, cfg) =>
                 {
+                    cfg.UseMessageRetry(r =>
+                    {
+                        r.Handle<RabbitMqConnectionException>();
+                        r.Interval(5, TimeSpan.FromSeconds(10));
+                    });
+
                     cfg.Host(configuration["RabbitMq:Host"], "/", h =>
                     {
                         h.Username(configuration.GetValue("RabbitMq:Username", "guest"));
@@ -34,6 +51,8 @@ namespace BiddingService.Extensions
                     opt.TokenValidationParameters.NameClaimType = "username";
                 });
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+            services.AddHostedService<CheckAuctionFinished>();
+            services.AddScoped<GrpcAuctionClient>();
 
             return services;
         }

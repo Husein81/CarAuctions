@@ -14,7 +14,7 @@ export default function DetailedSpecs({ auction }: Props) {
           <Shad.TableCell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
             Seller
           </Shad.TableCell>
-          <Shad.TableCell>{auction.seller}</Shad.TableCell>
+          <Shad.TableCell>{auction?.seller ?? "-"}</Shad.TableCell>
         </Shad.TableRow>
         <Shad.TableRow className="bg-white dark:border-gray-700 dark:bg-gray-800">
           <Shad.TableCell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">

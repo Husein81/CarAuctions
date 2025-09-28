@@ -1,12 +1,12 @@
 "use client";
 
-import { useParamsStore, useGetAuctions } from "@/hooks";
+import { useGetAuctions, useParamsStore } from "@/hooks";
 import { Auction } from "@/types";
+import EmptyFilter from "../empty-filter";
 import Pagination from "../pagination";
 import SkeletonList from "../skeleton-list";
 import AuctionCard from "./auction-card";
 import Filters from "./filters";
-import EmptyFilter from "../empty-filter";
 
 const AuctionList = () => {
   const {

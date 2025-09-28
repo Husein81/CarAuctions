@@ -1,15 +1,15 @@
 "use client";
 
-import React from "react";
-import CountdownTimer from "@/components/auction/countdown-timer";
-import Heading from "@/components/heading";
-import { useDeleteAuction, useGetAuction } from "@/hooks";
 import { Button, Spinner } from "@/components";
 import CarImage from "@/components/auction/car-image";
-import DetailedSpecs from "./DetailedSpecs";
+import CountdownTimer from "@/components/auction/countdown-timer";
+import BidList from "@/components/bids/bid-list";
+import Heading from "@/components/heading";
+import { useDeleteAuction, useGetAuction } from "@/hooks";
 import { User } from "next-auth";
 import Link from "next/dist/client/link";
 import { useRouter } from "next/navigation";
+import DetailedSpecs from "./DetailedSpecs";
 
 type Props = {
   id: string;
@@ -18,7 +18,7 @@ type Props = {
 
 export default function AuctionDetailsClient({ id, user }: Props) {
   const router = useRouter();
-  const { data: auction, isLoading, error } = useGetAuction(id);
+  const { data: auction, isLoading } = useGetAuction(id);
 
   const deleteAuction = useDeleteAuction();
 
@@ -60,21 +60,22 @@ export default function AuctionDetailsClient({ id, user }: Props) {
         </div>
         <div className="flex gap-4">
           <h3 className="text-2xl font-semibold">Time remaining:</h3>
-          <CountdownTimer auctionEnd={auction?.auctionEnd ?? ""} />
+          <CountdownTimer auctionEnd={auction?.auctionEnd ?? new Date()} />
         </div>
       </div>
 
       <div className="grid grid-cols-2 gap-6 mt-3">
-        <div className="relative w-full aspect-video  rounded-lg overflow-hidden">
+        <div
+          className="relative w-full bg-gray-200 aspect-[16/10] 
+                    rounded-lg overflow-hidden"
+        >
           <CarImage imageUrl={auction?.imageUrl ?? ""} />
         </div>
-        <div className="border-2 rounded-lg p-2 bg-gray-200">
-          <Heading title="Bids" />
-        </div>
+        <BidList user={user!} auction={auction!} />
       </div>
 
       <div className="mt-4 grid grid-cols-1 rounded-lg">
-        <DetailedSpecs auction={auction!} />
+        {auction ? <DetailedSpecs auction={auction} /> : "No auction found."}
       </div>
     </>
   );

@@ -75,7 +75,7 @@ namespace AuctionService.Controllers
 
         [Authorize]
         [HttpPut("{id}")]
-        public async Task<ActionResult> UpdateAuction(Guid id, UpdateAuctionDto updateAuctionDto)
+        public async Task<ActionResult> UpdateAuction(Guid id, [FromBody] UpdateAuctionDto updateAuctionDto)
         {
             var auction = await _context.Auctions
                 .Include(x => x.Item)
@@ -83,22 +83,23 @@ namespace AuctionService.Controllers
 
             if (auction == null) return NotFound();
 
-            if (auction.Seller != User.Identity.Name)
+            if (auction.Seller != User.Identity?.Name)
                 return Forbid();
 
             auction.Item.Make = updateAuctionDto.Make ?? auction.Item.Make;
             auction.Item.Model = updateAuctionDto.Model ?? auction.Item.Model;
+            auction.Item.Year = updateAuctionDto.Year;                         
             auction.Item.Color = updateAuctionDto.Color ?? auction.Item.Color;
-            auction.Item.Mileage = updateAuctionDto.Mileage ?? auction.Item.Mileage;
-            auction.Item.Year = updateAuctionDto.Year ?? auction.Item.Year;
+            auction.Item.Mileage = updateAuctionDto.Mileage;
 
             await _publishEndpoint.Publish(_mapper.Map<AuctionUpdated>(auction));
 
             var result = await _context.SaveChangesAsync() > 0;
 
-            if (result) return Ok();
+            if (!result) return BadRequest("Faild to update auction");
+                
+            return Ok();
 
-            return BadRequest("Problem saving changes");
         }
 
         [Authorize]
@@ -113,12 +114,13 @@ namespace AuctionService.Controllers
                 return Forbid();
 
             _context.Auctions.Remove(auction);
+            
+            await _publishEndpoint.Publish(new AuctionDeleted { Id = id.ToString() });
 
             var result = await _context.SaveChangesAsync() > 0;
 
             if (!result) return BadRequest("Could not update DB");
 
-            await _publishEndpoint.Publish(new AuctionDeleted { Id = id.ToString() });
 
             return Ok();
         }

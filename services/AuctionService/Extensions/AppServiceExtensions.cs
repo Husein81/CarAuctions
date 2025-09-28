@@ -40,6 +40,12 @@ namespace AuctionService.Extensions
 
                 x.UsingRabbitMq((context, cfg) =>
                 {
+                    cfg.UseMessageRetry(r =>
+                    {
+                        r.Handle<RabbitMqConnectionException>();
+                        r.Interval(5, TimeSpan.FromSeconds(10));
+                    });
+
                     cfg.Host(configuration["RabbitMq:Host"], "/", h =>
                     {
                         h.Username(configuration.GetValue("RabbitMq:Username", "guest"));
@@ -57,6 +63,8 @@ namespace AuctionService.Extensions
                     opt.TokenValidationParameters.ValidateAudience = false;
                     opt.TokenValidationParameters.NameClaimType = "username";
                 });
+            // Add gRPC services
+            services.AddGrpc();
 
             return services;
         }

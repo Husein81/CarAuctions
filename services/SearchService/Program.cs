@@ -1,7 +1,9 @@
 using MongoDB.Driver;
 using Polly;
+using Polly.Extensions.Http;
 using SearchService.Data;
 using SearchService.Extensions;
+using System.Net;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,7 +17,7 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
-// Use CORS - IMPORTANT: Must be before other middleware
+// Use CORS - must be before other middleware that handles requests
 app.UseCors("AllowAll");
 
 app.UseHttpsRedirection();
@@ -41,3 +43,11 @@ app.Lifetime.ApplicationStarted.Register(async () =>
 });
 
 app.Run();
+
+static IAsyncPolicy<HttpResponseMessage> GetRetryPolicy()
+{
+    return HttpPolicyExtensions
+        .HandleTransientHttpError()
+        .OrResult(msg => msg.StatusCode == HttpStatusCode.NotFound)
+        .WaitAndRetryForeverAsync(_ => TimeSpan.FromSeconds(3));
+}

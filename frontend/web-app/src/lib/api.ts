@@ -3,10 +3,9 @@ import { Auction, auctionSchema, PagedResult } from "@/types";
 import axios from "axios";
 import { getSession } from "next-auth/react";
 
-const API_BASE =
-  process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:5001/api/";
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
 
-const api = axios.create({
+export const api = axios.create({
   baseURL: API_BASE,
   headers: {
     "Content-Type": "application/json",
@@ -24,12 +23,8 @@ api.interceptors.request.use(
         token = session;
       }
 
-      const accessToken = token?.accessToken;
-      console.log(
-        "Resolved Access Token:",
-        accessToken ? "<redacted>" : null,
-        token
-      );
+      const accessToken = token?.access_token;
+
       if (accessToken) {
         config.headers = config.headers ?? {};
         config.headers.Authorization = `Bearer ${accessToken}`;
@@ -77,15 +72,25 @@ export const auctionsApi = {
     return response.data;
   },
   createAuction: async (auction: Partial<Auction>): Promise<Auction> => {
-    const response = await api.post("auctions", auction);
-    return response.data;
+    try {
+      const response = await api.post("auctions", auction);
+      return response.data;
+    } catch (error) {
+      console.error("Error creating auction:", error);
+      throw error;
+    }
   },
   updateAuction: async (
     id: string,
     auction: Partial<Auction>
   ): Promise<Auction> => {
-    const response = await api.put(`auctions/${id}`, auction);
-    return response.data;
+    try {
+      const response = await api.put(`auctions/${id}`, auction);
+      return response.data;
+    } catch (error) {
+      console.error("Error updating auction:", error);
+      throw error;
+    }
   },
   deleteAuction: async (id: string) => {
     await api.delete(`auctions/${id}`);

@@ -6,6 +6,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddOpenApi();
 builder.Services.AddControllers();
 
+
 // Add services to the container.
 builder.Services.AddAppServices(builder.Configuration);
 
@@ -17,7 +18,7 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
-// Use CORS - IMPORTANT: Must be before other middleware
+// Use Routing and CORS so preflight (OPTIONS) requests are handled
 app.UseRouting();
 app.UseCors("AllowAll");
 

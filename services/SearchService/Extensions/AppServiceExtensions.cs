@@ -17,7 +17,7 @@ namespace SearchService.Extensions
             // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
             services.AddOpenApi();
 
-            // Add CORS
+            // Add CORS policy used by the frontend
             services.AddCors(options =>
             {
                 options.AddPolicy("AllowAll", policy =>
@@ -55,6 +55,12 @@ namespace SearchService.Extensions
 
                 x.UsingRabbitMq((context, cfg) =>
                 {
+                    cfg.UseMessageRetry(r =>
+                    {
+                        r.Handle<RabbitMqConnectionException>();
+                        r.Interval(5, TimeSpan.FromSeconds(10));
+                    });
+
                     cfg.Host(configuration["RabbitMq:Host"], "/", h =>
                     {
                         h.Username(configuration.GetValue("RabbitMq:Username", "guest"));
@@ -65,12 +71,6 @@ namespace SearchService.Extensions
                     {
                         e.UseMessageRetry(r => r.Interval(5, 5));
                         e.ConfigureConsumer<AuctionCreatedConsumer>(context);
-                    });
-
-                    cfg.ReceiveEndpoint("search-auction-updated", e =>
-                    {
-                        e.UseMessageRetry(r => r.Interval(5, 5));
-                        e.ConfigureConsumer<AuctionUpdatedConsumer>(context);
                     });
 
                     cfg.ConfigureEndpoints(context);

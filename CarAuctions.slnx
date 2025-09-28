@@ -7,5 +7,6 @@
   <Project Path="services/Contracts/Contracts.csproj" />
   <Project Path="services/GatewayService/GatewayService.csproj" />
   <Project Path="services/IdentityService/IdentityService.csproj" />
+  <Project Path="services/NotificationService/NotificationService.csproj" Id="db32374a-faae-4bb2-8312-9b68c82eee23" />
   <Project Path="services/SearchService/SearchService.csproj" />
 </Solution>

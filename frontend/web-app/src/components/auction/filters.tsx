@@ -1,6 +1,5 @@
 import { useParamsStore } from "@/hooks/store/useParamsStore";
 import { ToggleGroup } from "../";
-import { icons } from "lucide-react";
 
 const toggleOptions = [
   {

@@ -4,6 +4,7 @@ import "./globals.css";
 import { NavBar } from "@/components";
 import { Providers } from "./providers";
 import { ToastContainer } from "react-toastify";
+import SignalRProvider from "./providers/signalr";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -32,7 +33,9 @@ export default async function RootLayout({
       >
         <Providers>
           <NavBar />
-          <main className="container mx-auto px-5 pt-10 pb-5">{children}</main>
+          <main className="container mx-auto px-5 pt-10 pb-5">
+            <SignalRProvider>{children}</SignalRProvider>
+          </main>
           <ToastContainer
             position="bottom-right"
             autoClose={3000}

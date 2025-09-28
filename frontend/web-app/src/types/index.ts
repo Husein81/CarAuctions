@@ -15,7 +15,7 @@ export const auctionSchema = z.object({
   currentHighBid: z.number(),
   createdAt: z.string(),
   updatedAt: z.string(),
-  auctionEnd: z.string(),
+  auctionEnd: z.date().default(new Date()),
   status: z.string(),
   make: z.string(),
   model: z.string(),
@@ -30,17 +30,17 @@ export const bidSchema = z.object({
   id: z.string(),
   auctionId: z.string(),
   bidder: z.string(),
+  bidStatus: z.string(),
+  bidTime: z.string(),
   amount: z.number(),
-  createdAt: z.string().optional(),
-  updatedAt: z.string().optional(),
 });
 
 export const auctionFinishedSchema = z.object({
   itemSold: z.boolean(),
   auctionId: z.string(),
-  winner: z.string().nullable(),
+  winner: z.string().optional(),
   seller: z.string(),
-  amount: z.number().nullable(),
+  amount: z.number().optional(),
 });
 
 export type PagedResult<T extends z.ZodTypeAny> = z.infer<

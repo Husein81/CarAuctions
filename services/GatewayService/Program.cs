@@ -1,18 +1,6 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 var builder = WebApplication.CreateBuilder(args);
-
-// Add CORS
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowAll", policy =>
-    {
-        policy.AllowAnyOrigin()
-              .AllowAnyMethod()
-              .AllowAnyHeader();
-    });
-});
-
 builder.Services.AddReverseProxy()
     .LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"));
 
@@ -27,6 +15,20 @@ builder.Services
         opt.TokenValidationParameters.NameClaimType = "username";
     });
 
+// Configure CORS for the gateway to allow browser clients to call proxied services
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("GatewayCors", policy =>
+    {
+        // If you need credentials (cookies/authorization headers) set specific origins via configuration and use AllowCredentials.
+        // For simplicity allow any origin, method and header. Adjust for production.
+        policy.AllowAnyOrigin()
+              .AllowAnyMethod()
+              .AllowAnyHeader()
+              .WithExposedHeaders("WWW-Authenticate");
+    });
+});
+
 builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("default", policy =>
@@ -37,8 +39,8 @@ builder.Services.AddAuthorization(options =>
 
 var app = builder.Build();
 
-// Use CORS
-app.UseCors("AllowAll");
+// Use CORS before reverse proxy and authentication
+app.UseCors("GatewayCors");
 
 app.UseAuthentication();
 app.UseAuthorization();

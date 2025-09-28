@@ -1,32 +1,41 @@
+"use client";
 import { Button, FieldInfo, Input, Spinner } from "@/components";
 import { DatePicker } from "@/components/ui/date-picker";
-import { useCreateAuction } from "@/hooks";
+import { useCreateAuction, useGetAuction, useUpdateAuction } from "@/hooks";
+import { Auction } from "@/types";
 import { useForm } from "@tanstack/react-form";
 import { format } from "date-fns";
 import { useRouter, usePathname } from "next/navigation";
 import { toast } from "react-toastify";
 
-export function AuctionForm() {
+type Props = {
+  id?: string;
+};
+
+export function AuctionForm({ id }: Props) {
   const pathname = usePathname();
   const router = useRouter();
 
+  const { data: auction } = useGetAuction(id ?? Math.random().toString());
+
   const createAuction = useCreateAuction();
+  const updateAuction = useUpdateAuction();
 
   const form = useForm({
     defaultValues: {
-      make: "",
-      model: "",
-      color: "",
-      year: 0,
-      mileage: 0,
-      reservePrice: 0,
-      auctionEnd: new Date().toUTCString(),
-      imageUrl: "",
+      make: auction?.make ?? "",
+      model: auction?.model ?? "",
+      color: auction?.color ?? "",
+      year: auction?.year ?? 0,
+      mileage: auction?.mileage ?? 0,
+      reservePrice: auction?.reservePrice ?? 0,
+      auctionEnd: auction?.auctionEnd ?? new Date(),
+      imageUrl: auction?.imageUrl ?? "",
     },
     onSubmit: async ({ value }) => {
       try {
         // Ensure auctionEnd is sent as a UTC ISO date string (Date.UTC)
-        const payload = { ...value } as any;
+        const payload: Partial<Auction> = { ...value };
         if (payload.auctionEnd) {
           // payload.auctionEnd expected in format yyyy-MM-dd
           const parts = String(payload.auctionEnd).split("-");
@@ -35,7 +44,7 @@ export function AuctionForm() {
             const month = Number(parts[1]) - 1; // zero-based
             const day = Number(parts[2]);
             const utcDate = new Date(Date.UTC(year, month, day));
-            payload.auctionEnd = utcDate.toISOString();
+            payload.auctionEnd = utcDate;
           } else {
             // fallback: try to parse and convert to UTC ISO
             const d = new Date(payload.auctionEnd);
@@ -48,11 +57,27 @@ export function AuctionForm() {
                 d.getMinutes(),
                 d.getSeconds()
               )
-            ).toISOString();
+            );
           }
         }
-        const res = await createAuction.mutateAsync(payload);
-        router.push(`/auctions/details/${res.id}`);
+
+        let res: Auction;
+
+        if (auction)
+          res = await updateAuction.mutateAsync({
+            id: auction.id,
+            auction: {
+              make: payload.make,
+              model: payload.model,
+              color: payload.color,
+              year: payload.year,
+              mileage: payload.mileage,
+            },
+          });
+        else res = await createAuction.mutateAsync(payload);
+
+        const id = res.id ?? auction?.id;
+        router.push(`/auctions/details/${id}`);
       } catch (error) {
         if (error instanceof Error) {
           toast.error(error.message ?? "An error occurred");
@@ -186,20 +211,7 @@ export function AuctionForm() {
                         : undefined
                     }
                     setDate={(date: Date | undefined) =>
-                      field.handleChange(
-                        date
-                          ? format(
-                              new Date(
-                                Date.UTC(
-                                  date.getFullYear(),
-                                  date.getMonth(),
-                                  date.getDate()
-                                )
-                              ),
-                              "yyyy-MM-dd"
-                            )
-                          : ""
-                      )
+                      field.handleChange(date ?? new Date())
                     }
                   />
                 </div>
