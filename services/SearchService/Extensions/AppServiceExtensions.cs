@@ -17,36 +17,25 @@ namespace SearchService.Extensions
             // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
             services.AddOpenApi();
 
-            // Add CORS policy used by the frontend
-            services.AddCors(options =>
-            {
-                options.AddPolicy("AllowAll", policy =>
-                {
-                    policy.AllowAnyOrigin()
-                          .AllowAnyMethod()
-                          .AllowAnyHeader();
-                });
-            });
-
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
-            
+
             // Add MongoDB services
             services.AddSingleton<IMongoClient>(serviceProvider =>
             {
                 var connectionString = configuration.GetSection("MongoDB:ConnectionString").Value;
                 return new MongoClient(connectionString);
             });
-            
+
             services.AddSingleton<IMongoDatabase>(serviceProvider =>
             {
                 var client = serviceProvider.GetRequiredService<IMongoClient>();
                 var databaseName = configuration.GetSection("MongoDB:DatabaseName").Value;
                 return client.GetDatabase(databaseName);
             });
-            
+
             // Add HttpClient for AuctionService
             services.AddHttpClient<AuctionSvcHttpClient>().AddPolicyHandler(GetPolicy());
-            
+
             services.AddMassTransit(x =>
             {
                 x.AddConsumersFromNamespaceContaining<AuctionCreatedConsumer>();
@@ -76,13 +65,13 @@ namespace SearchService.Extensions
                     cfg.ConfigureEndpoints(context);
                 });
             });
-            
+
             static IAsyncPolicy<HttpResponseMessage> GetPolicy()
                 => HttpPolicyExtensions
                     .HandleTransientHttpError()
                     .OrResult(msg => msg.StatusCode == HttpStatusCode.NotFound)
                     .WaitAndRetryForeverAsync(_ => TimeSpan.FromSeconds(3));
-            
+
             return services;
         }
     }

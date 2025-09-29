@@ -41,106 +41,106 @@ services:
       - 5672:5672
       - 15672:15672
     healthcheck:
-        test: rabbitmq-diagnostics check_port_connectivity
-        interval: 5s
-        timeout: 5s
-        retries: 5
+      test: rabbitmq-diagnostics check_port_connectivity
+      interval: 5s
+      timeout: 5s
+      retries: 5
   auction-svc:
     image: trycatchlearn/auction-svc:latest
     build:
-        context: .
-        dockerfile: services/AuctionService/Dockerfile
+      context: .
+      dockerfile: services/AuctionService/Dockerfile
     environment:
-        - ASPNETCORE_ENVIRONMENT=Development
-        - ASPNETCORE_URLS=http://+:80
-        - RabbitMq__Host=rabbitmq 
-        - ConnectionStrings__DefaultConnection=Server=postgres:5432;User Id=postgres;Password=husein81;Database=auctions
-        - IdentityServiceUrl=http://identity-svc
-        - Kestrel__Endpoints__Grpc__Protocols=Http2
-        - Kestrel__Endpoints__Grpc__Url=http://+:7777
-        - Kestrel__Endpoints__WebApi__Protocols=Http1
-        - Kestrel__Endpoints__WebApi__Url=http://+80
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
+      - RabbitMq__Host=rabbitmq
+      - ConnectionStrings__DefaultConnection=Server=postgres:5432;User Id=postgres;Password=husein81;Database=auctions
+      - IdentityServiceUrl=http://identity-svc
+      - Kestrel__Endpoints__Grpc__Protocols=Http2
+      - Kestrel__Endpoints__Grpc__Url=http://+:7777
+      - Kestrel__Endpoints__WebApi__Protocols=Http1
+      - Kestrel__Endpoints__WebApi__Url=http://+80
 
     ports:
-        - 5001:80
-        - 7777:7777
+      - 5001:80
+      - 7777:7777
     depends_on:
-        postgres:
-          condition: service_healthy
-        rabbitmq:
-            condition: service_healthy
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
   search-svc:
     image: trycatchlearn/search-svc:latest
     build:
-        context: .
-        dockerfile: services/SearchService/Dockerfile
+      context: .
+      dockerfile: services/SearchService/Dockerfile
     environment:
-        - ASPNETCORE_ENVIRONMENT=Development
-        - ASPNETCORE_URLS=http://+:80
-        - RabbitMq__Host=rabbitmq 
-        - ConnectionStrings__DefaultConnection=mongodb+srv://husseinnasrallah2002:hu$$ein81@mern.ccxpdo3.mongodb.net/searchAuctionsDb?retryWrites=true&w=majority&appName=mern
-        - AuctionServiceUrl=http://auction-svc
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
+      - RabbitMq__Host=rabbitmq
+      - ConnectionStrings__DefaultConnection=mongodb+srv://husseinnasrallah2002:hu$$ein81@mern.ccxpdo3.mongodb.net/searchAuctionsDb?retryWrites=true&w=majority&appName=mern
+      - AuctionServiceUrl=http://auction-svc
     ports:
-        - 5002:80
+      - 5002:80
     depends_on:
-        mongodb:
-          condition: service_healthy
-        rabbitmq:
-            condition: service_healthy
+      mongodb:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
   identity-svc:
     image: trycatchlearn/identity-svc:latest
     build:
-        context: .
-        dockerfile: services/IdentityService/Dockerfile
+      context: .
+      dockerfile: services/IdentityService/Dockerfile
     environment:
-        - ASPNETCORE_ENVIRONMENT=Docker
-        - ASPNETCORE_URLS=http://+:80
-        - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Username=postgres;Password=husein81;Database=identity
+      - ASPNETCORE_ENVIRONMENT=Docker
+      - ASPNETCORE_URLS=http://+:80
+      - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Username=postgres;Password=husein81;Database=identity
     ports:
-        - 5003:80
+      - 5003:80
     depends_on:
-        postgres:
-          condition: service_healthy    
+      postgres:
+        condition: service_healthy
   gateway-svc:
-      image: trycatchlearn/gateway-svc:latest
-      build:
-          context: .
-          dockerfile: services/GatewayService/Dockerfile
-      environment:
-          - ASPNETCORE_ENVIRONMENT=Development
-          - ASPNETCORE_URLS=http://+:80
-          - RabbitMq__Host=rabbitmq 
-          - ClientApp=http://localhost:3000  
-          - IdentityServiceUrl=http://identity-svc
-      ports:
-          - 6000:80
-      depends_on:
-            mongodb:
-              condition: service_healthy
-            rabbitmq:
-               condition: service_healthy
+    image: trycatchlearn/gateway-svc:latest
+    build:
+      context: .
+      dockerfile: services/GatewayService/Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Docker
+      - ASPNETCORE_URLS=http://+:80
+      - ClientApp=http://localhost:3000
+      - IdentityServiceUrl=http://identity-svc
+      - VIRTUAL_HOST=localhost
+    ports:
+      - "7001:80"
+    depends_on:
+      - auction-svc
+      - search-svc
+      - identity-svc
+      - bid-svc
   bid-svc:
-      image: trycatchlearn/bid-svc:latest
-      build:
-          context: .
-          dockerfile: services/BiddingService/Dockerfile
-      environment:
-          - ASPNETCORE_ENVIRONMENT=Development
-          - ASPNETCORE_URLS=http://+:80
-          - RabbitMq__Host=rabbitmq 
-          - ConnectionStrings__BidDbConnection=mongodb+srv://husseinnasrallah2002:hu%24%24ein81@mern.ccxpdo3.mongodb.net/BiddingDb?retryWrites=true&w=majority&appName=mern
-          - IdentityServiceUrl=http://identity-svc
-          - GrpcAuction=http://auction-svc:7777
-      ports:
-          - 5004:80
-      depends_on:
-            mongodb:
-              condition: service_started    
-            rabbitmq:
-               condition: service_healthy
+    image: trycatchlearn/bid-svc:latest
+    build:
+      context: .
+      dockerfile: services/BiddingService/Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
+      - RabbitMq__Host=rabbitmq
+      - ConnectionStrings__BidDbConnection=mongodb+srv://husseinnasrallah2002:hu%24%24ein81@mern.ccxpdo3.mongodb.net/BiddingDb?retryWrites=true&w=majority&appName=mern
+      - IdentityServiceUrl=http://identity-svc
+      - GrpcAuction=http://auction-svc:7777
+    ports:
+      - 5004:80
+    depends_on:
+      mongodb:
+        condition: service_started
+      rabbitmq:
+        condition: service_healthy
   notify-svc:
     image: trycatchlearn/notify-svc:latest
-    build: 
+    build:
       context: .
       dockerfile: services/NotificationService/Dockerfile
     environment:
@@ -151,6 +151,32 @@ services:
       - 5005:80
     depends_on:
       - rabbitmq
+  web-app:
+    image: trycatchlearn/web-app:latest
+    depends_on:
+      - gateway-svc
+    build:
+      context: .
+      dockerfile: frontend/web-app/Dockerfile
+    volumes:
+      - /var/lib/web/data
+    ports:
+      - 3000:3000
+    environment:
+      - AUTH_SECRET=7d2f9b1c-3ea4-4f2b-9a6b-9f0c2d5a8b6e
+      - NEXT_PUBLIC_API_BASE_URL=http://gateway-svc
+      - NEXT_PUBLIC_ID_URL=http://identity-svc
+      - NEXT_PUBLIC_AUTH_URL=http://localhost:3000
+      - AUTH_URL_INTERNAL=http://web-app:3000
+  nginx-proxy:
+    image: nginxproxy/nginx-proxy
+    container_name: nginx-proxy
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+      - ./devcerts:/etc/nginx/certs
 volumes:
-   pgdata:
-   mongodata:
+  pgdata:
+  mongodata:

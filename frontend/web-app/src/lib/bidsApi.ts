@@ -2,15 +2,7 @@ import { getTokenWorkaround } from "@/app/actions/authAuctions";
 import { Bid } from "@/types";
 import axios from "axios";
 import { getSession } from "next-auth/react";
-
-const BIDS_API_BASE = process.env.NEXT_PUBLIC_BIDS_API_BASE_URL;
-
-const api = axios.create({
-  baseURL: BIDS_API_BASE,
-  headers: {
-    "Content-Type": "application/json",
-  },
-});
+import { api } from "./api";
 
 api.interceptors.request.use(
   async (config) => {

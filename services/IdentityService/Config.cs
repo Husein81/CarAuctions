@@ -16,7 +16,7 @@ public static class Config
         {
             new ApiScope("auctionApp", "Auction app full access")
         };
-    public static IEnumerable<Client> Clients =>
+    public static IEnumerable<Client> Clients(IConfiguration configuration) =>
         new Client[]
         {
             // Postman client for testing
@@ -38,9 +38,8 @@ public static class Config
                 ClientSecrets = new[] { new Secret("secret".Sha256()) },
                 AllowedGrantTypes = GrantTypes.CodeAndClientCredentials,
                 RequirePkce = false,
-                RedirectUris = { "http://localhost:3000/api/auth/callback/id-server" },
+                RedirectUris = { configuration["ClientApp"] + "/api/auth/callback/id-server" },
                 AllowOfflineAccess = true,
-                // include 'auction' so this client can request access tokens for the Auction API
                 AllowedScopes = { "openid", "profile", "auctionApp" },
                 AccessTokenLifetime = 3600*24*30,
                 AlwaysIncludeUserClaimsInIdToken = true

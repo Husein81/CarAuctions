@@ -9,16 +9,6 @@ namespace BiddingService.Extensions
     {
         public static IServiceCollection AddAppServices(this IServiceCollection services, IConfiguration configuration)
         {
-            services.AddCors(options =>
-            {
-                options.AddPolicy("AllowAll", policy =>
-                {
-                    policy.AllowAnyOrigin()
-                          .AllowAnyMethod()
-                          .AllowAnyHeader();
-                });
-            });
-
             services.AddMassTransit(x =>
             {
                 x.AddConsumersFromNamespaceContaining<AuctionCreateConsumer>();

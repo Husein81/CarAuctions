@@ -62,18 +62,18 @@ export const auctionsApi = {
     seller?: string;
     winner?: string;
   }): Promise<PagedResult<typeof auctionSchema>> => {
-    const response = await axios.get("http://localhost:5002/api/search", {
+    const response = await api.get("/search", {
       params,
     });
     return response.data;
   },
   getAuction: async (id: string): Promise<Auction> => {
-    const response = await api.get(`auctions/${id}`);
+    const response = await api.get(`/auctions/${id}`);
     return response.data;
   },
   createAuction: async (auction: Partial<Auction>): Promise<Auction> => {
     try {
-      const response = await api.post("auctions", auction);
+      const response = await api.post("/auctions", auction);
       return response.data;
     } catch (error) {
       console.error("Error creating auction:", error);

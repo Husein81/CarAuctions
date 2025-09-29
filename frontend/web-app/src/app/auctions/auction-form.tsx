@@ -12,7 +12,7 @@ type Props = {
   id?: string;
 };
 
-export function AuctionForm({ id }: Props) {
+function AuctionForm({ id }: Props) {
   const pathname = usePathname();
   const router = useRouter();
 
@@ -242,3 +242,5 @@ export function AuctionForm({ id }: Props) {
     </form>
   );
 }
+
+export default AuctionForm;

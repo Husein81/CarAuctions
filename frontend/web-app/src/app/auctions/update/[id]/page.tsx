@@ -1,12 +1,8 @@
 import Heading from "@/components/heading";
-import { AuctionForm } from "../../auction-form";
+import AuctionForm from "@/app/auctions/auction-form";
 
-export default async function Update({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
-  const { id } = await params;
+export default async function Update({ params }: { params: { id: string } }) {
+  const { id } = params;
 
   return (
     <div className="mx-auto max-w-[75%] shadow-lg p-10 bg-white rounded-lg">

@@ -2,6 +2,7 @@ using System.Globalization;
 using System.Text;
 using Duende.IdentityServer.Licensing;
 using IdentityService;
+using Npgsql;
 using Serilog;
 
 Log.Logger = new LoggerConfiguration()

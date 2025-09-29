@@ -1,6 +1,6 @@
 "use client";
 import Heading from "@/components/heading";
-import { AuctionForm } from "../auction-form";
+import AuctionForm from "../auction-form";
 
 export default function page() {
   return (
