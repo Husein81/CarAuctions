@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-app
+spec:
+  selector:
+    matchLabels:
+      app: web-app
+  template:
+    metadata:
+      labels:
+        app: web-app
+    spec:
+      enableServiceLinks: false
+      containers:
+        - name: web-app
+          image: trycatchlearn/web-app
+          imagePullPolicy: Never
+          env:
+            - name: AUTH_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: AUTH_SECRET
+            # Kubernetes sets HOSTNAME to the pod name; Next.js would then bind to that
+            # one address instead of all interfaces.
+            - name: HOSTNAME
+              value: "0.0.0.0"
+          ports:
+            - containerPort: 3000
+---
+# http://localhost:3000. NEXT_PUBLIC_* values are baked into the image at build time
+# (see the build args in docker-compose.yml), not set here.
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-app
+spec:
+  type: LoadBalancer
+  selector:
+    app: web-app
+  ports:
+    - port: 3000
+      targetPort: 3000

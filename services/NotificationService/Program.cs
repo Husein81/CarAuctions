@@ -1,4 +1,6 @@
 using MassTransit;
+using NotificationService.Consumers;
+using NotificationService.Hubs;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -8,7 +10,12 @@ builder.Services.AddOpenApi();
 
 builder.Services.AddMassTransit(x =>
 {
-    x.SetEndpointNameFormatter(new KebabCaseEndpointNameFormatter("auction", false));
+    x.AddConsumersFromNamespaceContaining<AuctionCreatedConsumer>();
+
+    // The prefix must be unique per service: it names the RabbitMQ queues. With the
+    // "auction" prefix, the consumers here would share queues with AuctionService and
+    // each message would only reach one of the two services.
+    x.SetEndpointNameFormatter(new KebabCaseEndpointNameFormatter("nt", false));
 
     x.UsingRabbitMq((context, cfg) =>
     {
@@ -25,6 +32,9 @@ builder.Services.AddMassTransit(x =>
         cfg.ConfigureEndpoints(context);
     });
 });
+
+builder.Services.AddSignalR();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -32,5 +42,8 @@ if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
 }
+
+// The gateway forwards /notify/** to this service unchanged (see its "notifications" route).
+app.MapHub<NotificationHub>("/notify");
 
 app.Run();

@@ -36,5 +36,5 @@ export async function getTokenWorkaround() {
     cookies: Object.fromEntries(cookieEntries),
   } as NextApiRequest;
 
-  return await getToken({ req, secret: process.env.NEXT_PUBLIC_AUTH_SECRET });
+  return await getToken({ req, secret: process.env.AUTH_SECRET });
 }

@@ -1,6 +1,7 @@
 **/.classpath
 **/.dockerignore
 **/.env
+**/.env.*
 **/.git
 **/.gitignore
 **/.project
@@ -17,12 +18,17 @@
 **/docker-compose*
 **/Dockerfile*
 **/node_modules
+**/.next
 **/npm-debug.log
 **/obj
 **/secrets.dev.yaml
 **/values.dev.yaml
 LICENSE
 README.md
+# Local IdentityServer signing keys and logs must not be baked into the image.
+services/IdentityService/keys
+services/IdentityService/diagnostics
+infra
 !**/.gitignore
 !.git/HEAD
 !.git/config

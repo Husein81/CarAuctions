@@ -36,11 +36,9 @@ public class BidsController : ControllerBase
         var amount = dto.Amount;
 
         var auction = await DB.Find<Auction>().OneAsync(auctionId);
-        Console.WriteLine("Acution: ",auction);
         if (auction == null)
         {
             auction = _grpcClient.GetAuction(auctionId);
-            Console.WriteLine("Acution: ", auction);
             if (auction == null)
                 return NotFound("Auction not found");
         }

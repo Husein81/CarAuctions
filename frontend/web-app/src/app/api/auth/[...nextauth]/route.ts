@@ -39,7 +39,7 @@ export const authOptions: NextAuthOptions = {
       return session;
     },
   },
-  debug: true,
+  debug: process.env.NODE_ENV !== "production",
 };
 
 const handler = NextAuth(authOptions);

@@ -1,0 +1,67 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auction-svc
+spec:
+  selector:
+    matchLabels:
+      app: auction-svc
+  template:
+    metadata:
+      labels:
+        app: auction-svc
+    spec:
+      enableServiceLinks: false
+      initContainers:
+        # AuctionService swallows migration errors at startup (DbSeed.InitDb),
+        # so it must not start before Postgres accepts connections.
+        - name: wait-for-postgres
+          image: postgres:17
+          command: ["sh", "-c", "until pg_isready -h postgres -p 5432; do sleep 2; done"]
+      containers:
+        - name: auction-svc
+          image: trycatchlearn/auction-svc
+          imagePullPolicy: Never
+          envFrom:
+            - configMapRef:
+                name: auction-svc-config
+          env:
+            - name: ConnectionStrings__DefaultConnection
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: AUCTION_DB_CONNECTION
+          ports:
+            - containerPort: 80
+              name: web
+            - containerPort: 7777
+              name: grpc
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: auction-svc-config
+data:
+  ASPNETCORE_ENVIRONMENT: "Development"
+  RabbitMq__Host: "rabbitmq"
+  IdentityServiceUrl: "http://identity-svc"
+  Kestrel__Endpoints__Grpc__Protocols: "Http2"
+  Kestrel__Endpoints__Grpc__Url: "http://+:7777"
+  Kestrel__Endpoints__WebApi__Protocols: "Http1"
+  Kestrel__Endpoints__WebApi__Url: "http://+:80"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: auction-svc
+spec:
+  type: ClusterIP
+  selector:
+    app: auction-svc
+  ports:
+    - name: web
+      port: 80
+      targetPort: 80
+    - name: grpc
+      port: 7777
+      targetPort: 7777

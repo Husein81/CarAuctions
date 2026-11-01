@@ -9,21 +9,22 @@ namespace AuctionService.Consumers
     {
         private readonly AppDbContext _context;
 
-        public AuctionFinishedConsumer(AppDbContext context)
-        {
+        public AuctionFinishedConsumer(AppDbContext context){
             _context = context;
         }
 
         public async Task Consume(ConsumeContext<AuctionFinished> context)
         {
-            var auction = await _context.Auctions.FindAsync(context.Message.AuctionId);
-            if(auction == null)
-            {
+            // The contract carries the id as a string, but the key is a Guid; Find() throws on a type mismatch.
+            if (!Guid.TryParse(context.Message.AuctionId, out var auctionId)) return;
+
+            var auction = await _context.Auctions.FindAsync(auctionId);
+            
+            if(auction == null){
                 return;
             }
 
-            if (context.Message.ItemSold)
-            {
+            if (context.Message.ItemSold){
                 auction.Winner = context.Message.Winner;
                 auction.SoldAmount = context.Message.Amount;
             }

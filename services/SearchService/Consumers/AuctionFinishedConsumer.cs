@@ -10,6 +10,8 @@ namespace SearchService.Consumers
         {
             var auction = await DB.Find<Item>().OneAsync(context.Message.AuctionId);
 
+            if (auction == null) return;
+
             if (context.Message.ItemSold)
             {
                 auction.Winner = context.Message.Winner;

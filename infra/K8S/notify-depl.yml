@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: notify-svc
+spec:
+  selector:
+    matchLabels:
+      app: notify-svc
+  template:
+    metadata:
+      labels:
+        app: notify-svc
+    spec:
+      enableServiceLinks: false
+      containers:
+        - name: notify-svc
+          image: trycatchlearn/notify-svc
+          imagePullPolicy: Never
+          envFrom:
+            - configMapRef:
+                name: notify-svc-config
+          ports:
+            - containerPort: 80
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: notify-svc-config
+data:
+  ASPNETCORE_ENVIRONMENT: "Development"
+  ASPNETCORE_URLS: "http://+:80"
+  RabbitMq__Host: "rabbitmq"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: notify-svc
+spec:
+  type: ClusterIP
+  selector:
+    app: notify-svc
+  ports:
+    - port: 80
+      targetPort: 80

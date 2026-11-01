@@ -489,3 +489,7 @@ $RECYCLE.BIN/
 
 # Vim temporary swap files
 *.swp
+
+# IdentityServer signing keys and logs (generated at runtime, must never be committed)
+services/IdentityService/keys/
+services/IdentityService/diagnostics/

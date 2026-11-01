@@ -10,7 +10,9 @@ namespace AuctionService.Profiles
         public MappingProfiles()
         {
             CreateMap<Auction, AuctionDto>()
-                .IncludeMembers(x => x.Item);
+                .IncludeMembers(x => x.Item)
+                // The entity property is named UpdateAt, so the name-based convention never matched it.
+                .ForMember(d => d.UpdatedAt, o => o.MapFrom(s => s.UpdateAt));
             CreateMap<Item, AuctionDto>();
             CreateMap<CreateAuctionDto, Auction>()
                 .ForMember(d => d.Item, o => o.MapFrom(s => s));

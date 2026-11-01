@@ -1,0 +1,5 @@
+# Dependency build scripts pnpm 11+ asks you to approve explicitly. Neither is needed:
+# sharp and @tailwindcss/oxide ship prebuilt binaries as optional dependencies.
+allowBuilds:
+  '@tailwindcss/oxide': false
+  sharp: false

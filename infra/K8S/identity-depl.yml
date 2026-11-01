@@ -1,0 +1,68 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: identity-svc
+spec:
+  selector:
+    matchLabels:
+      app: identity-svc
+  template:
+    metadata:
+      labels:
+        app: identity-svc
+    spec:
+      enableServiceLinks: false
+      initContainers:
+        - name: wait-for-postgres
+          image: postgres:17
+          command: ["sh", "-c", "until pg_isready -h postgres -p 5432; do sleep 2; done"]
+      containers:
+        - name: identity-svc
+          image: trycatchlearn/identity-svc
+          imagePullPolicy: Never
+          envFrom:
+            - configMapRef:
+                name: identity-svc-config
+          env:
+            - name: ConnectionStrings__DefaultConnection
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: IDENTITY_DB_CONNECTION
+          ports:
+            - containerPort: 80
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: identity-svc-config
+data:
+  ASPNETCORE_ENVIRONMENT: "Docker"
+  ASPNETCORE_URLS: "http://+:80"
+---
+# In-cluster address (http://identity-svc) used by the other services to validate JWTs.
+apiVersion: v1
+kind: Service
+metadata:
+  name: identity-svc
+spec:
+  type: ClusterIP
+  selector:
+    app: identity-svc
+  ports:
+    - port: 80
+      targetPort: 80
+---
+# Browser-facing address, http://localhost:5003 (same as docker-compose).
+# LoadBalancer services are published on localhost by Docker Desktop's Kubernetes.
+apiVersion: v1
+kind: Service
+metadata:
+  name: identity-lb
+spec:
+  type: LoadBalancer
+  selector:
+    app: identity-svc
+  ports:
+    - port: 5003
+      targetPort: 80

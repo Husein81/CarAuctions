@@ -1,6 +1,8 @@
 services:
   postgres:
-    image: postgres:latest
+    # Pinned: from postgres 18 the image keeps data under /var/lib/postgresql/<version>/,
+    # so the pgdata mount below would silently stop persisting anything.
+    image: postgres:17
     environment:
       - POSTGRES_PASSWORD=husein81
     ports:
@@ -59,8 +61,7 @@ services:
       - Kestrel__Endpoints__Grpc__Protocols=Http2
       - Kestrel__Endpoints__Grpc__Url=http://+:7777
       - Kestrel__Endpoints__WebApi__Protocols=Http1
-      - Kestrel__Endpoints__WebApi__Url=http://+80
-
+      - Kestrel__Endpoints__WebApi__Url=http://+:80
     ports:
       - 5001:80
       - 7777:7777
@@ -78,7 +79,10 @@ services:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:80
       - RabbitMq__Host=rabbitmq
-      - ConnectionStrings__DefaultConnection=mongodb+srv://husseinnasrallah2002:hu$$ein81@mern.ccxpdo3.mongodb.net/searchAuctionsDb?retryWrites=true&w=majority&appName=mern
+      # SearchService reads MongoDB:ConnectionString / MongoDB:DatabaseName. To use a hosted
+      # cluster instead, set SEARCH_MONGO_CONNECTION in an untracked .env file.
+      - MongoDB__ConnectionString=${SEARCH_MONGO_CONNECTION:-mongodb://root:husein81@mongodb}
+      - MongoDB__DatabaseName=SearchDb
       - AuctionServiceUrl=http://auction-svc
     ports:
       - 5002:80
@@ -128,14 +132,15 @@ services:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:80
       - RabbitMq__Host=rabbitmq
-      - ConnectionStrings__BidDbConnection=mongodb+srv://husseinnasrallah2002:hu%24%24ein81@mern.ccxpdo3.mongodb.net/BiddingDb?retryWrites=true&w=majority&appName=mern
+      # Override with BID_MONGO_CONNECTION in an untracked .env file to use a hosted cluster.
+      - ConnectionStrings__BidDbConnection=${BID_MONGO_CONNECTION:-mongodb://root:husein81@mongodb}
       - IdentityServiceUrl=http://identity-svc
       - GrpcAuction=http://auction-svc:7777
     ports:
       - 5004:80
     depends_on:
       mongodb:
-        condition: service_started
+        condition: service_healthy
       rabbitmq:
         condition: service_healthy
   notify-svc:
@@ -158,15 +163,17 @@ services:
     build:
       context: .
       dockerfile: frontend/web-app/Dockerfile
+      # NEXT_PUBLIC_* are inlined at build time, so they are build args, not environment.
+      # They are the addresses the browser uses (published host ports).
+      args:
+        - NEXT_PUBLIC_API_BASE_URL=http://localhost:7001
+        - NEXT_PUBLIC_ID_URL=http://localhost:5003
     volumes:
       - /var/lib/web/data
     ports:
       - 3000:3000
     environment:
       - AUTH_SECRET=7d2f9b1c-3ea4-4f2b-9a6b-9f0c2d5a8b6e
-      - NEXT_PUBLIC_API_BASE_URL=http://gateway-svc
-      - NEXT_PUBLIC_ID_URL=http://identity-svc
-      - NEXT_PUBLIC_AUTH_URL=http://localhost:3000
       - AUTH_URL_INTERNAL=http://web-app:3000
   nginx-proxy:
     image: nginxproxy/nginx-proxy
